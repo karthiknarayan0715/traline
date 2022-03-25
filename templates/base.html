@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{title}}</title>
+        <link rel="stylesheet" href="{{url_for('static', filename='styles.css')}}">
+    </head>
+    <body>
+        <div id="header">
+            <div id="title">
+                <div class="text" style="font-size: 40px; text-align: center;"><a href='{{url_for("home")}}'>Transmission Lines</a></div>
+            </div>
+            <div class="dropdown">
+                <button class="dropbtn">...</button>
+                <div class="dropdown-content">
+                    <a href="{{url_for('home')}}">Home</a>
+                    <a href="{{url_for('short_line_model')}}">Short Line Model</a>
+                    <a href="{{url_for('medium_line_model')}}">Medium Line Model</a>
+                    <a href="{{url_for('long_line_model')}}">Long Line Model</a>
+                </div>
+            </div>
+        </div>
+        {% block content %}
+        {% endblock %}
+        <div class="flashed">
+           
+            {% with messages = get_flashed_messages() %}  
+            {% if messages %}  
+                  {% for message in messages %}  
+                       <div class="text">{{ message }}</p></div> 
+                  {% endfor %}  
+            {% endif %}  
+            {% endwith %} 
+        </div> 
+    </body>
+</html>
