@@ -19,11 +19,17 @@ body{
     height: 85vh;
     border-right: 3px solid white;
     border-bottom: 3px solid white;
-
 }
 .sidebox *
 {
     padding: 20px;
+}
+.sidebox a
+{
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    padding: 0;
 }
 .sidebox .text
 {
@@ -113,4 +119,68 @@ a:hover
     width: 100%;
     height: 10px;
     background-color: white;
+}
+.container
+{
+    display: flex;
+}
+.sidebox_rest
+{
+    margin: 20px;
+}
+.sidebox .text
+{
+    color: #691019
+}
+.sidebox_rest .text
+{
+    color: #691019
+}
+.sidebox_rest .message .text
+{
+    color: white
+}
+.form
+{
+    width: 600px;
+    height: auto;
+    padding: 20px;
+    background-color: #ceb92c;
+}
+.form input
+{
+    margin-top: 6px;
+    padding-top: 12px;  
+    padding-right: 80px;
+    padding-left: 80px;
+    text-align: center;
+}
+.form input[type = "submit"]
+{
+    height: 70px;
+    background-color: #691019;
+    color: white;
+    text-align: center;
+    vertical-align: center;
+}
+.main_area
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    vertical-align: middle;
+    width: 100%;
+    height: 100%;
+}
+.glowing {
+    position: relative;
+    top: 500;
+    left: 500;
+    width: 0px;
+    height: 0px;
+    border-radius: 50%;
+    background-color: #fff;
+    box-shadow:
+      0 0 100px 30px #f0f,
+      0 0 140px 90px #0ff;
 }

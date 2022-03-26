@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="sidebox">
+        <a href="/short_line_model"><div class="text">INTRODUCTION</div></a>
+        <a href="/short_line_model/symmetrical"><div class="text">SYMMETRICAL MODEL</div></a>
+        <a href="/short_line_model/unsymmetrical"><div class="text">UNSYMMETRICAL MODEL</div></a>
+    </div>
+    <div class="center">
+        <div class="sidebox_rest">
+            <div class="form">
+                <form method="POST">
+                    <div class="text">Spacing between conductors</div>
+                    <input type="text" name ="spacing"><br><br>
+                    <div class="text">No of sub-conductors</div>
+                    <input type="text" name ="sub-cond"><br><br>
+                    <div class="text">Spacing between the sub-conductors </div>
+                    <input type="text" name ="sub_space"><br><br>
+                    <div class="text">No of strands</div>
+                    <input type="text" name ="strand"><br><br>
+                    <div class="text">Strand diameter</div>
+                    <input type="text" name ="strand_dia"><br><br>
+                    <div class="text">Length of diameter (km)</div>
+                    <input type="text" name ="length"><br><br>
+                    <div class="text">Resistance / km </div>
+                    <input type="text" name ="resistance"><br><br>
+                    <div class="text">Power Frequency</div>
+                    <input type="text" name ="frequency"><br><br>
+                    <div class="text">Nominal system voltage</div>
+                    <input type="text" name ="voltage"><br><br>
+                    <div class="text">Receiving end load (MW)</div>
+                    <input type="text" name ="load"><br><br>
+                    <div class="text">Power factor</div>
+                    <input type="text" name ="powerfactor"><br><br>
+                    <input type="submit" value="Submit">
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
