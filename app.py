@@ -26,12 +26,23 @@ def long_line_model():
 def shortline_symmetrical():
     if request.method == "POST":
         form = request.form
+        result = {}
 
+        for value in form.keys():
+            result[value] = 10
 
-        #Inductance per phase
-        L_ph = None
-        #Capacitance per phase
-        C_ph = 0
+        return render_template('result.html', result=result)
+@app.route("/short_line_model/unsymmetrical", methods = ['GET', 'POST'])
+def shortline_unsymmetrical():
+    if request.method == "POST":
+        form = request.form
+        result = {}
+
+        for value in form.keys():
+            result[value] = 10
+
+        return render_template('result.html', result=result)
+        
         
     return render_template('shortline_symmetrical.html')
 

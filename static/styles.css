@@ -184,3 +184,20 @@ a:hover
       0 0 100px 30px #f0f,
       0 0 140px 90px #0ff;
 }
+
+table, td, th {
+    border: 3px solid #EEEEEE;
+}
+
+td, th{
+    padding: 20px;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th {
+    text-align: left;
+}
