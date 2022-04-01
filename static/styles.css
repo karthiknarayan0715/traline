@@ -17,9 +17,9 @@ body{
     background-color: #ceb92c;
     width: 300px;
     height: 85vh;
-    border-right: 3px solid white;
+    /* border-right: 3px solid white;
     border-left: 3px solid white;
-    border-bottom: 3px solid white;
+    border-bottom: 3px solid white; */
 }
 .sidebox *
 {
@@ -37,7 +37,7 @@ body{
     color: white;
     font-weight: bold;
     text-align: center;
-    border-bottom: 3px solid white;
+    /* border-bottom: 3px solid white; */
 }
 .sidebox .text:hover
 {
