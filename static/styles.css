@@ -18,6 +18,7 @@ body{
     width: 300px;
     height: 85vh;
     border-right: 3px solid white;
+    border-left: 3px solid white;
     border-bottom: 3px solid white;
 }
 .sidebox *
@@ -185,6 +186,65 @@ a:hover
       0 0 140px 90px #0ff;
 }
 
+.box
+{
+    width: 63.5vh;
+    padding: 5px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    text-align: center;
+    border: 3px solid #691019;
+    border-collapse: collapse;
+}
+
+a .box:hover{
+    background-color: #fbd93e;
+}
+.home_body
+{
+    margin-top: 20%;
+}
+
+.text_bold
+{
+    color: white;
+    font-size: 48px;
+    font-weight: bold;
+}
+
+.home_container{
+    background-color: #fee36e;
+    width: 100%;
+    display: flex;
+}
+
+.home_container .box
+{
+
+    color: #691019;
+}
+
+.footer
+{
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: #373e98;
+    color: white;
+    display: flex; 
+    text-align: center;
+}
+
+.footer .box
+{
+    width: 64.5vh;
+    border: 3px solid white;
+}
+.footer .box .text
+{
+    color: white;
+}
 table, td, th {
     border: 3px solid #EEEEEE;
 }

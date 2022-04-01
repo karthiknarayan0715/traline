@@ -21,32 +21,21 @@
                     <input type="text" name ="strand"><br><br>
                     <div class="text">Strand diameter</div>
                     <input type="text" name ="strand_dia"><br><br>
-                    <div class="text">Length of the Line (km)</div>
+                    <div class="text">Length of diameter (km)</div>
                     <input type="text" name ="length"><br><br>
                     <div class="text">Resistance / km </div>
                     <input type="text" name ="resistance"><br><br>
-                    <div class="text">Frequency</div>
+                    <div class="text">Power Frequency</div>
                     <input type="text" name ="frequency"><br><br>
                     <div class="text">Nominal system voltage</div>
                     <input type="text" name ="voltage"><br><br>
                     <div class="text">Receiving end load (MW)</div>
                     <input type="text" name ="load"><br><br>
                     <div class="text">Power factor</div>
-                    <input type="text" name ="pf"><br><br>
+                    <input type="text" name ="powerfactor"><br><br>
                     <input type="submit" value="Submit">
                 </form>
-                <div class="flashed">   
-                {% with messages = get_flashed_messages() %}  
-                {% if messages %}  
-                        {% for message in messages %}  
-                            <div class="text">{{ message }}</p></div> 
-                        {% endfor %}  
-                {% endif %}  
-                {% endwith %} 
-                </div> 
             </div>
         </div>
     </div>
-
-
 {% endblock %}

@@ -1,7 +1,31 @@
-{% extends "base.html" %}
-
-{% block content %}
-<div class="main_area">
-    <div class="glowing"></div>
-</div>
-{% endblock %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{title}}</title>
+        <link rel="stylesheet" href="{{url_for('static', filename='styles.css')}}">
+    </head>
+    <body>
+        <div class="header">
+            <div class="center">
+                <div class="home_container">
+                    <a href="{{url_for('short_line_model')}}"><div class="box">Short Line Model</div></a>
+                    <a href="{{url_for('medium_line_model')}}"><div class="box">Medium Line Model</div></a>
+                    <a href="{{url_for('long_line_model')}}"><div class="box">Long Line Model</div></a>
+                </div>
+            </div>
+        </div>
+        <div class="center">
+            <div class="home_body">
+                <div class="text_bold">TRALINE</div>
+                <div class="text">
+                    A TADEE project
+                </div>
+            </div>
+        </div>
+        <div class="footer">
+            <div class="box"><div class="text">Karthik Narayan V V</div></div>
+            <div class="box"><div class="text">Varun Venugopalan</div></div>
+            <div class="box"><div class="text">Protik Saha</div></div>
+        </div>
+    </body>
+</html>

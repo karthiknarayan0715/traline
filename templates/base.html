@@ -7,7 +7,7 @@
     <body>
         <div id="header">
             <div id="title">
-                <div class="text" style="font-size: 40px; text-align: center;"><a href='{{url_for("home")}}'>Transmission Lines</a></div>
+                <div class="text" style="font-size: 40px; text-align: center;"><a href='{{url_for("home")}}'>TRALINE</a></div>
             </div>
             <div class="dropdown">
                 <button class="dropbtn">...</button>
@@ -21,15 +21,5 @@
         </div>
         {% block content %}
         {% endblock %}
-        <div class="flashed">
-           
-            {% with messages = get_flashed_messages() %}  
-            {% if messages %}  
-                  {% for message in messages %}  
-                       <div class="text">{{ message }}</p></div> 
-                  {% endfor %}  
-            {% endif %}  
-            {% endwith %} 
-        </div> 
     </body>
 </html>
