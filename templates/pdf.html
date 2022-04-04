@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="centered">
+    <table>
+        <tr>
+            <th><div class="text">Parameter</div></th>
+            <th><div class="text">Value</div></th>
+        </tr>
+    {% for parameter in session['result'].keys() %}
+        <tr>
+            <td><div class="text">{{parameter}}</div></td>
+            <td><div class="text">{{session['result'][parameter]}}</div></td>
+        </tr>
+    {% endfor %}
+    </table>
+</div>  
+{% endblock %}
