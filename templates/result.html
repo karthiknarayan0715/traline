@@ -2,27 +2,24 @@
 
 {% block content %}
 <div class="centered">
-<table>
-    <tr>
-        <th><div class="text">Parameter</div></th>
-        <th><div class="text">Value</div></th>
-    </tr>
-{% for parameter in result.keys() %}
-    <tr>
-        <td><div class="text">{{parameter}}</div></td>
-        <td><div class="text">{{result[parameter]}}</div></td>
-    </tr>
-{% endfor %}
-</table>
+    <table>
+        <tr>
+            <th><div class="text">Parameter</div></th>
+            <th><div class="text">Value</div></th>
+        </tr>
+    {% for parameter in result.keys() %}
+        <tr>
+            <td><div class="text">{{parameter}}</div></td>
+            <td><div class="text">{{result[parameter]}}</div></td>
+        </tr>
+    {% endfor %}
+    </table>
 <br><br>
-</div>
-<br>
-<div class="centered">
+
 <div class="button"><div class="text" style="text-align: center;"><a href="{{url_for('pdf')}}">Download PDF</a></div></div>
 
 <input type="hidden" id="graph_parameters" value="{{graph_parameters}}">
 <img src="data:image/png;base64,{{data}}">
-<!-- <canvas id="myCanvas" height="500px" width="500px" style="background-color: white; border: 3px solid black;"></canvas> -->
 </div>
 
 {% endblock %}
