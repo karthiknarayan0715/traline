@@ -1,6 +1,7 @@
 from flask import Flask, render_template, redirect, request, flash, url_for, session
 from flask_weasyprint import HTML, render_pdf
 from models import *
+import numpy as np
 import math
 import os
 
@@ -27,49 +28,36 @@ def long_line_model():
 
 @app.route("/short_line_model/symmetrical", methods = ['GET', 'POST'])
 def shortline_symmetrical():
-    same_page = 'shortline_symmetrical'
+    same_page = 'shortline_unsymmetrical'
     if request.method == "POST":
         form = request.form
         result = {}
+
         if not check_form(form):
-            flash('Invalid input!')
+            flash("Invalid Inputs!!")
             return redirect(url_for(same_page))
-        
-        data = form_to_float(form)
 
-        for key in data.keys():
-            result[key] = data[key]
-        if verify_data(data, same_page):
-            return redirect(url_for(same_page))
-        
-        mgmd = MGMD(data['d'], data['d'], data['d'])
-        r = radius(data['d_strand'], data['n_s_c'])
-        sgmd = SGMD(data['n_s_c'], data['l'], r)
-        ind_str = result['Inductance per Km'] = f"{inductance(mgmd, sgmd)} H/km"
-        ind = float(ind_str[0:-5])
+        sys = "Symmetric"
+        a = b = c = float(form.get('d'))
 
-        cap = result['Capacitance per Km'] = f"{capacitance(mgmd, sgmd)} F/km"
-        Vr = data['Vr']
-        Ir = IR(data['Pr'], data['pf'], Vr)
-        A, B, C, D = shortline_ABCD(ind, r*data['l'])
-        Vs, Is = sending_end(A, B, C, D, Vr, Ir)
-        ind_reac = result['Inductive reactace'] = f"{(2*math.pi*ind*data['f'])} ohms"
-        cap_reac = result['Capacitive reactace'] = f"{1/(2*math.pi*ind*data['f'])} ohms"
-        CC = result['Charging Current'] = f"{abs(cc(Is, Ir))}∠{phase(cc(Is, Ir))} A"
-        result['A'], result['B'], result['C'], result['D'] = f"{abs(A)}{phase(A)}", f"{abs(B)}{phase(B)}", f"{abs(C)}{phase(C)}", f"{abs(D)}{phase(D)}"
-        ploss, eff = powerLoss_eff(Vr, Vs, Ir, Is)
+        subcon = int(form.get('n_sub_bundle'))
+        subspa = float(form.get('spacing'))
+        d = subspa*10
+        nos = int(form.get('n_strands'))
+        dia = float(form.get('d_strand'))
+        line = float(form.get('l'))
+        type = "short"
+        r = float(form.get('R'))
+        f = float(form.get('f'))
+        V = float(form.get('Vr'))
+        Pr = float(form.get('Vr'))
+        pf = float(form.get('pf'))
 
-        result['Sending End Voltage'] = f"{abs(Vs)}∠{phase(Vs)} V"
-        result['Sending End Current'] = f"{abs(Is)}∠{phase(Vs)} A"
-        result['Voltage Regulation'] = f"{VR(Vs, Vr)} %"
-        result['Power Loss'] = f"{ploss/100000} MW"
-        result['Effeciency'] = f"{eff}"
-        result['Shunt Compensation'] = f"{shuntcomp(Vs, Is)}"
+        result, data = Compute(a, b, c, subcon, subspa, nos, dia, line, type, r, f, V, Pr, pf)
 
         session['result'] = result
-        return render_template('result.html', result=result)   
-
-    return render_template('shortline_symmetrical.html')
+        return render_template('result.html', data=data)
+    return render_template('shortline_symmetrical.html') 
 
 
 @app.route("/short_line_model/unsymmetrical", methods = ['GET', 'POST'])
@@ -78,42 +66,32 @@ def shortline_unsymmetrical():
     if request.method == "POST":
         form = request.form
         result = {}
-        
+
         if not check_form(form):
-            flash('Invalid input!')
+            flash("Invalid Inputs!!")
             return redirect(url_for(same_page))
 
-        data = form_to_float(form)
-        if not verify_data(data):
-            flash('Error')
-            return redirect(url_for(same_page))
+        sys = "Unsymmetric"
+        a = float(form.get('d_a'))
+        b = float(form.get('d_b'))
+        c = float(form.get('d_c'))
 
-        mgmd = MGMD(data['d_a'], data['d_b'], data['d_c'])
-        r = radius(data['d_strand'], data['n_s_c'])
-        sgmd = SGMD(data['n_s_c'], data['l'], r)
-        ind_str = result['Inductance per Km'] = f"{inductance(mgmd, sgmd)} H/km"
-        ind = float(ind_str[0:-5])
+        subcon = int(form.get('n_sub_bundle'))
+        subspa = float(form.get('spacing'))
+        d = subspa*10
+        nos = int(form.get('n_strands'))
+        dia = float(form.get('d_strand'))
+        line = float(form.get('l'))
+        type = "short"
+        r = float(form.get('R'))
+        f = float(form.get('f'))
+        V = float(form.get('Vr'))
+        Pr = float(form.get('Vr'))
+        pf = float(form.get('pf'))
 
-        cap = result['Capacitance per Km'] = f"{capacitance(mgmd, sgmd)} F/km"
-        Vr = data['Vr']
-        Ir = IR(data['Pr'], data['pf'], Vr)
-        A, B, C, D = shortline_ABCD(ind, r*data['l'])
-        Vs, Is = sending_end(A, B, C, D, Vr, Ir)
-        ind_reac = result['Inductive reactace'] = f"{(2*math.pi*ind*data['f'])} ohms"
-        cap_reac = result['Capacitive reactace'] = f"{1/(2*math.pi*ind*data['f'])} ohms"
-        CC = result['Charging Current'] = f"{abs(cc(Is, Ir))}∠{phase(cc(Is, Ir))} A"
-        result['A'], result['B'], result['C'], result['D'] = f"{abs(A)}{phase(A)}", f"{abs(B)}{phase(B)}", f"{abs(C)}{phase(C)}", f"{abs(D)}{phase(D)}"
-        ploss, eff = powerLoss_eff(Vr, Vs, Ir, Is)
-
-        result['Sending End Voltage'] = f"{abs(Vs)}∠{phase(Vs)} V"
-        result['Sending End Current'] = f"{abs(Is)}∠{phase(Vs)} A"
-        result['Voltage Regulation'] = f"{VR(Vs, Vr)} %"
-        result['Power Loss'] = f"{ploss/100000} MW"
-        result['Effeciency'] = f"{eff}"
-        result['Shunt Compensation'] = f"{shuntcomp(Vs, Is)}"
-
+        result, data = Compute(a, b, c, subcon, subspa, nos, dia, line, type, r, f, V, Pr, pf)
         session['result'] = result
-        return render_template('result.html', result=result)        
+        return render_template('result.html', result=result, data=data)
         
     return render_template('shortline_unsymmetrical.html')
 
@@ -123,89 +101,138 @@ def mediumline_symmetrical():
     if request.method == "POST":
         form = request.form
         result = {}
-        
+
         if not check_form(form):
-            flash('Invalid input!')
+            flash("Invalid Inputs!!")
             return redirect(url_for(same_page))
 
-        data = form_to_float(form)
-        if not verify_data(data):
-            flash('Error')
-            return redirect(url_for(same_page))
+        sys = "Symmetric"
+        a = b = c = float(form.get('d'))
 
-        mgmd = MGMD(data['d_a'], data['d_b'], data['d_c'])
-        r = radius(data['d_strand'], data['n_s_c'])
-        sgmd = SGMD(data['n_s_c'], data['l'], r)
-        ind_str = result['Inductance per Km'] = f"{inductance(mgmd, sgmd)} H/km"
-        ind = float(ind_str[0:-5])
+        subcon = int(form.get('n_sub_bundle'))
+        subspa = float(form.get('spacing'))
+        d = subspa*10
+        nos = int(form.get('n_strands'))
+        dia = float(form.get('d_strand'))
+        line = float(form.get('l'))
+        type = "nominal pi"
+        r = float(form.get('R'))
+        f = float(form.get('f'))
+        V = float(form.get('Vr'))
+        Pr = float(form.get('Vr'))
+        pf = float(form.get('pf'))
 
-        cap = result['Capacitance per Km'] = f"{capacitance(mgmd, sgmd)} F/km"
-        Vr = data['Vr']
-        Ir = IR(data['Pr'], data['pf'], Vr)
-        A, B, C, D = mediumline_ABCD(ind, r*data['l'])
-        Vs, Is = sending_end(A, B, C, D, Vr, Ir)
-        ind_reac = result['Inductive reactace'] = f"{(2*math.pi*ind*data['f'])} ohms"
-        cap_reac = result['Capacitive reactace'] = f"{1/(2*math.pi*ind*data['f'])} ohms"
-        CC = result['Charging Current'] = f"{abs(cc(Is, Ir))}∠{phase(cc(Is, Ir))} A"
-        result['A'], result['B'], result['C'], result['D'] = f"{abs(A)}∠{phase(A)}", f"{abs(B)}∠{phase(B)}", f"{abs(C)}∠{phase(C)}", f"{abs(D)}∠{phase(D)}"
-        ploss, eff = powerLoss_eff(Vr, Vs, Ir, Is)
-
-        result['Sending End Voltage'] = f"{abs(Vs)}∠{phase(Vs)} V"
-        result['Sending End Current'] = f"{abs(Is)}∠{phase(Vs)} A"
-        result['Voltage Regulation'] = f"{VR(Vs, Vr)} %"
-        result['Power Loss'] = f"{ploss/100000} MW"
-        result['Effeciency'] = f"{eff}"
-
+        result, data = Compute(a, b, c, subcon, subspa, nos, dia, line, type, r, f, V, Pr, pf)
         session['result'] = result
-        return render_template('result.html', result=result)  
-
-    return render_template('mediumline_unsymmetrical.html')
+        return render_template('result.html', result=result, data=data)
+    return render_template('medium_line_symmetrical.html') 
 
 
 @app.route("/medium_line_model/unsymmetrical", methods=['GET', 'POST'])
 def mediumline_unsymmetrical():
-    same_page = 'mediumline_unsymmetrical'
+    same_page = 'shortline_unsymmetrical'
     if request.method == "POST":
         form = request.form
         result = {}
-        
+
         if not check_form(form):
-            flash('Invalid input!')
+            flash("Invalid Inputs!!")
             return redirect(url_for(same_page))
 
-        data = form_to_float(form)
-        if not verify_data(data):
-            flash('Error')
-            return redirect(url_for(same_page))
+        sys = "Unsymmetric"
+        a = float(form.get('d_a'))
+        b = float(form.get('d_b'))
+        c = float(form.get('d_c'))
 
-        mgmd = MGMD(data['d_a'], data['d_b'], data['d_c'])
-        r = radius(data['d_strand'], data['n_s_c'])
-        sgmd = SGMD(data['n_s_c'], data['l'], r)
-        ind_str = result['Inductance per Km'] = f"{inductance(mgmd, sgmd)} H/km"
-        ind = float(ind_str[0:-5])
+        subcon = int(form.get('n_sub_bundle'))
+        subspa = float(form.get('spacing'))
+        d = subspa*10
+        nos = int(form.get('n_strands'))
+        dia = float(form.get('d_strand'))
+        line = float(form.get('l'))
+        type = "nominal pi"
+        r = float(form.get('R'))
+        f = float(form.get('f'))
+        V = float(form.get('Vr'))
+        Pr = float(form.get('Vr'))
+        pf = float(form.get('pf'))
 
-        cap = result['Capacitance per Km'] = f"{capacitance(mgmd, sgmd)} F/km"
-        Vr = data['Vr']
-        Ir = IR(data['Pr'], data['pf'], Vr)
-        A, B, C, D = mediumline_ABCD(ind, r*data['l'])
-        Vs, Is = sending_end(A, B, C, D, Vr, Ir)
-        ind_reac = result['Inductive reactace'] = f"{(2*math.pi*ind*data['f'])} ohms"
-        cap_reac = result['Capacitive reactace'] = f"{1/(2*math.pi*ind*data['f'])} ohms"
-        CC = result['Charging Current'] = f"{abs(cc(Is, Ir))}∠{phase(cc(Is, Ir))} A"
-        result['A'], result['B'], result['C'], result['D'] = f"{abs(A)}∠{phase(A)}", f"{abs(B)}∠{phase(B)}", f"{abs(C)}∠{phase(C)}", f"{abs(D)}∠{phase(D)}"
-        ploss, eff = powerLoss_eff(Vr, Vs, Ir, Is)
-
-        result['Sending End Voltage'] = f"{abs(Vs)}∠{phase(Vs)} V"
-        result['Sending End Current'] = f"{abs(Is)}∠{phase(Vs)} A"
-        result['Voltage Regulation'] = f"{VR(Vs, Vr)} %"
-        result['Power Loss'] = f"{ploss/100000} MW"
-        result['Effeciency'] = f"{eff}"
+        result, data = Compute(a, b, c, subcon, subspa, nos, dia, line, type, r, f, V, Pr, pf)
 
         session['result'] = result
-        return render_template('result.html', result=result)  
+        return render_template('result.html', result=result, data=data)        
+        
+    return render_template('medium_line_unsymmetrical.html')
 
-    return render_template('mediumline_unsymmetrical.html')
 
+@app.route("/long_line_model/unsymmetrical", methods=['GET', 'POST'])
+def longline_unsymmetrical():
+    same_page = 'longline_unsymmetrical'
+    if request.method == "POST":
+        form = request.form
+        result = {}
+
+        if not check_form(form):
+            flash("Invalid Inputs!!")
+            return redirect(url_for(same_page))
+
+        sys = "Unsymmetric"
+        a = float(form.get('d_a'))
+        b = float(form.get('d_b'))
+        c = float(form.get('d_c'))
+
+        subcon = int(form.get('n_sub_bundle'))
+        subspa = float(form.get('spacing'))
+        d = subspa*10
+        nos = int(form.get('n_strands'))
+        dia = float(form.get('d_strand'))
+        line = float(form.get('l'))
+        type = "long"
+        r = float(form.get('R'))
+        f = float(form.get('f'))
+        V = float(form.get('Vr'))
+        Pr = float(form.get('Vr'))
+        pf = float(form.get('pf'))
+
+        result, data = Compute(a, b, c, subcon, subspa, nos, dia, line, type, r, f, V, Pr, pf)
+
+        session['result'] = result
+        return render_template('result.html', result=result, data=data)        
+        
+    return render_template('long_line_unsymmetrical.html')
+
+@app.route("/long_line_model/symmetrical", methods=['GET', 'POST'])
+def longline_symmetrical():
+    same_page = 'longline_symmetrical'
+    if request.method == "POST":
+        form = request.form
+        result = {}
+
+        if not check_form(form):
+            flash("Invalid Inputs!!")
+            return redirect(url_for(same_page))
+
+        sys = "Symmetric"
+        a = b = c = float(form.get('d'))
+
+        subcon = int(form.get('n_sub_bundle'))
+        subspa = float(form.get('spacing'))
+        d = subspa*10
+        nos = int(form.get('n_strands'))
+        dia = float(form.get('d_strand'))
+        line = float(form.get('l'))
+        type = "long"
+        r = float(form.get('R'))
+        f = float(form.get('f'))
+        V = float(form.get('Vr'))
+        Pr = float(form.get('Vr'))
+        pf = float(form.get('pf'))
+
+        result, data = Compute(a, b, c, subcon, subspa, nos, dia, line, type, r, f, V, Pr, pf)
+
+        session['result'] = result
+        return render_template('result.html', result=result, data=data)
+    return render_template('long_line_symmetrical.html') 
 
 @app.route("/pdf", methods=['GET', 'POST'])
 def pdf():

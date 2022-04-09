@@ -3,9 +3,9 @@
 {% block content %}
 <div class="container">
     <div class="sidebox">
-        <a href="/medium_line_model"><div class="text">INTRODUCTION</div></a>
-        <a href="/medium_line_model/symmetrical"><div class="text">SYMMETRICAL MODEL</div></a>
-        <a href="/medium_line_model/unsymmetrical"><div class="text">UNSYMMETRICAL MODEL</div></a>
+        <a href="/short_line_model"><div class="text">INTRODUCTION</div></a>
+        <a href="/short_line_model/symmetrical"><div class="text">SYMMETRICAL MODEL</div></a>
+        <a href="/short_line_model/unsymmetrical"><div class="text">UNSYMMETRICAL MODEL</div></a>
     </div>
     <div class="center">
         <div class="sidebox_rest">
@@ -13,16 +13,20 @@
                 <form method="POST">
                     <div class="text">No of sub-conductors</div>
                     <input type="text" name ="n_s_c" value="1"><br><br>
-                    <div class="text">Spacing between the sub-conductors A and B </div>
-                    <input type="text" name ="d_a" value="3"><br><br>
-                    <div class="text">Spacing between the sub-conductors B and C </div>
-                    <input type="text" name ="d_b" value="4"><br><br>
-                    <div class="text">Spacing between the sub-conductors C and A</div>
-                    <input type="text" name ="d_c" value="5"><br><br>
+                    <div class="text">Spacing between the conductors A and B (m)</div>
+                    <input type="text" name ="d_a" value="0.3"><br><br>
+                    <div class="text">Spacing between the conductors B and C (m)</div>
+                    <input type="text" name ="d_b" value="0.4"><br><br>
+                    <div class="text">Spacing between the conductors C and A (m)</div>
+                    <input type="text" name ="d_c" value="0.5"><br><br>
+                    <div class="text">No of sub conducters per bundle</div>
+                    <input type="text" name ="n_sub_bundle" value="3"><br><br>
+                    <div class="text">Spacing between the sub conducters</div>
+                    <input type="text" name ="spacing" value="3"><br><br>
                     <div class="text">No of strands</div>
                     <input type="text" name ="n_strands" value="3"><br><br>
-                    <div class="text">Strand diameter</div>
-                    <input type="text" name ="d_strand" value="5"><br><br>
+                    <div class="text">Strand diameter (m)</div>
+                    <input type="text" name ="d_strand" value="0.05"><br><br>
                     <div class="text">Length of Line (km)</div>
                     <input type="text" name ="l" value="11"><br><br>
                     <div class="text">Resistance / km </div>

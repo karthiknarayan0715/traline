@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+'{% extends "base.html" %}
 
 {% block content %}
 <div class="centered">
@@ -14,7 +14,15 @@
     </tr>
 {% endfor %}
 </table>
-
-<a href="{{url_for('pdf')}}">Download PDF</a>
+<br><br>
 </div>
+<br>
+<div class="centered">
+<div class="button"><div class="text" style="text-align: center;"><a href="{{url_for('pdf')}}">Download PDF</a></div></div>
+
+<input type="hidden" id="graph_parameters" value="{{graph_parameters}}">
+<img src="data:image/png;base64,{{data}}">
+<!-- <canvas id="myCanvas" height="500px" width="500px" style="background-color: white; border: 3px solid black;"></canvas> -->
+</div>
+
 {% endblock %}

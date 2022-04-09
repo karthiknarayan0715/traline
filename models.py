@@ -1,51 +1,17 @@
+from fileinput import filename
+from http.client import ImproperConnectionState
 import math
+from multiprocessing.connection import wait
+from ssl import VerifyFlags
 from flask import flash, redirect, url_for
 import cmath
 from cmath import phase
+import numpy as np
+from matplotlib.figure import Figure
+import os
+from io import BytesIO
+import base64
 
-def MGMD(a, b, c):
-    return (a*b*c)**(1/3)
-def SGMD(n, l, r):
-    if n==1:
-        return 0.7788*r
-    elif n==2:
-        return (r*0.7788*(l**(n-1)))**(1/n)
-    elif n==3:
-        return (0.7788*r*(l**(n-1)))**(1/n)
-    elif n==4:
-        return ((2**0.5)*0.7788*r*(l**(n-1)))**(1/n)
-    elif n==5:
-        return ((1.618**2)*0.7788*r*(l**(n-1)))**(1/n)
-    elif n==6:
-        return (3*2*0.7788*r*(l**(n-1)))**(1/n)
-    elif n==7:
-        return (16.39*0.7788*r*(l**(n-1)))**(1/n)
-    else:
-        return (9.2426*2.1631*0.7788*r*(l**(n-1)))**(1/n)
-def inductance(mgmd, sgmd):
-    return 2*(10**-7)*math.log(mgmd/sgmd)/1000
-def capacitance(mgmd, sgmd):
-    return (10**-9)/18*math.log(mgmd/sgmd)/1000
-def capacitive_recatance(c, f):
-    return 1/(2*math.pi*f*c)
-def inductive_reactance(l, f):
-    return 2*math.pi*f*l
-
-def radius(d_strand, n_s_c):
-    r = -1
-    if int(n_s_c) == 1:
-        r = d_strand/2
-    elif int(n_s_c) == 7:
-        r = 3*d_strand/2
-    elif int(n_s_c) == 19:
-        r = 5*d_strand/2
-    elif int(n_s_c) == 37:
-        r = 7*d_strand/2
-    elif int(n_s_c) == 61:
-        r = 9*d_strand/2
-    else:
-        flash("Invalid no. of strands")
-    return r*10**-2
 
 def check_form(form):
     for field in form.values():
@@ -54,15 +20,12 @@ def check_form(form):
         except:
             print(field)
             return False
-    return True
-
-def verify_data(data):
     allowed = [1, 7, 19, 37, 61]
-    if data['pf']>1 or data['pf']<-1:
+    if float(form['pf'])>1 or float(form['pf'])<-1:
         flash('Invalid power factor!')
         return False
     try:
-        if not int(data['n_s_c']) in allowed:
+        if not int(form['n_strands']) in allowed:
             flash('Invalid input!')
             return False
     except ValueError:
@@ -70,41 +33,121 @@ def verify_data(data):
         return False
     return True
 
-def cc(Is,Ir):
-    return abs(Is) - abs(Ir)
 
+def Compute(a, b, c, subcon, d, nos, dia, line, type, r, f, V, Pr, pf):
+    result = {}
+    l=(3+((12*nos)-3)**(1/2))/6
+    rad=dia*(2*l-1)/2
+    h=0.7788*rad
 
-def shortline_ABCD(L,R):
-    return complex(1,0),complex(R,L),complex(0,0),complex(1,0)
+    if subcon==1:
+        SGMl=h
+        SGMc=rad
+    elif subcon==2:
+        SGMl=(h*d)**(1/2)
+        SGMc=(rad*d)**(1/2)
+    elif subcon==3:
+        SGMl=(h*d*d)**(1/3)
+        SGMc=(rad*d*d)**(1/3)
+    elif subcon==4:
+        SGMl=(h*1.414*d*d*d)**(1/4)
+        SGMc=(rad*1.414*d*d*d)**(1/4)
+    elif subcon==6:
+        SGMl=(6*h*d*d*d*d*d)**(1/6)
+        SGMc=(6*rad*d*d*d*d*d)**(1/6)
+    elif subcon==5:
+        SGMl=(3.23606*d*d*d*d*h)**(1/5)
+        SGMc=(3.23606*d*d*d*d*rad)**(1/5)
+    GMD=(a*b*c)**(1/3)
 
-def mediumline_ABCD(Z,Y):
-    return Z*Y/2 +1,Z,Y*(Z*Y/4 +1),Z*Y/2 +1
+    L=2*0.0001*math.log(GMD*1000/SGMl)
+    C=(2*(10**-9)*8.854*3.14)/(math.log(GMD*1000/SGMc))
+    R=r*line	
+    X=line*L*2*3.14*f
+    Z=R+(X)*1j
+    Y=(2*3.14*C*line)*1j
+    if type=="short":
+        A=1
+        C=0
+        D=A
+        B=Z
+    elif type=="nominal pi":
+        A=1+(Z*Y*0.5)
+        B=Z
+        C=Y*(1+(0.25*Y*Z))
+        D=A
+    elif type=="long":
+        Zc=((Z/line)/(Y/line))**(1/2)
+        Yc=((Z/line)*(Y/line))**(1/2)
+        A=(2.71828**(Yc*line)+2.71828**(Yc*line*-1))*0.5
+        B=(2.71828**(Yc*line)-2.71828**(Yc*line*-1))*0.5*Zc
+        C=(2.71828**(Yc*line)-2.71828**(Yc*line*-1))*0.5*(1/Zc)
+        D=A
+    I=Pr/(pf*V*(3**(0.5)))
+    Vr=V/(3**0.5)
+    Ir=I*pf-(I*((1-(pf**2))**(0.5))*1j)
+    Vs=A*Vr+B*Ir
+    Is=C*Vr+D*Ir
 
-def longline_ABCD(Z,Y):
-    return cmath.cosh((Z*Y)**0.5), ((Z/Y)**0.5)*cmath.sinh((Z*Y)**0.5), cmath.cosh((Z*Y)**0.5), ((Y/Z)**0.5)*cmath.sinh((Z*Y)**0.5)
+    Vore=(abs(Vs)-abs(Vr))/abs(Vs)
+    los=(abs(Vs)*abs(Is)*math.cos(cmath.phase(Vs/Is)))-(abs(Vr)*abs(Ir)*math.cos(cmath.phase(Vr/Ir)))
+    loss=los*(3**0.5)
 
-def IR(Pr,pf,Vr):
-    return complex(Pr/(((3)**0.5)*Vr*pf)*pf, Pr/(((3)**0.5)*Vr*pf)*math.sin(math.acos(pf)))
+    eff=(abs(Vr)*abs(Ir)*math.cos(cmath.phase(Vr/Ir)))/(abs(Vs)*abs(Is)*math.cos(cmath.phase(Vs/Is)))
+    
+    result = {
+        "Inductance per Km": str(L),
+        "Capacitance per Km": str(C),
+        "Inductive Reactance": str(X),
+        "Capacitive Reactance": str(abs(1j/Y)),
+        "A Parameter": str(A),
+        "B Parameter": str(B),
+        "C Parameter": str(C),
+        "D Parameter": str(D),
+        "Charging Current": str(abs(Is-Ir)),
+        "Sending End Voltage": str(abs(Vs*(3**0.5))/1000),
+        "Sending End Current": str(abs(Is)),
+        "Voltage Regulation": str(Vore),
+        "Losses": str(loss),
+        "Effeciency": str(eff*100)
+    }
+    a1=(abs(A)*abs(Vr)*abs(Vr)/abs(B))*math.cos(cmath.phase(B/A))*-1/1000000
+    b1=(abs(A)*abs(Vr)*abs(Vr)/abs(B))*math.sin(cmath.phase(B/A))*-1/1000000
+    a2=(abs(A)*abs(Vs)*abs(Vs)/abs(B))*math.cos(cmath.phase(B/A))/1000000
+    b2=(abs(A)*abs(Vs)*abs(Vs)/abs(B))*math.sin(cmath.phase(B/A))/1000000
+    r=abs(Vs)*abs(Vr)/abs(B)/1000000
 
-def sending_end(A,B,C,D,Vr,Ir):
-    Vs = A * Vr + B * Ir
-    Is = C * Vr + D * Ir
-    return Vs,Is
+    print(a1, b1, a2, b2, r)
 
-def VR(vs,vr):
-    return (abs(vs) - abs(vr))*100/abs(vr)
+    file = open('./static/images/graph.png', "w+")
+    file.close()
+    circle = np.linspace(0,360,500)
+    x1 = []
+    y1 = []
+    x2 = []
+    y2 = []
 
-def pf(V,I):
-    return math.cos(phase(V/I))
+    for i in range(500):
+        x1.append(a1 + r*math.sin(np.radians(circle[i])))
+        y1.append(b1 + r*math.cos(np.radians(circle[i])))
+        x2.append(a2 + r*math.sin(np.radians(circle[i])))
+        y2.append(b2 + r*math.cos(np.radians(circle[i])))
 
-def powerLoss_eff(vr,vs,Ir,Is):
-    return abs(vs)*abs(Is)*pf(vs,Is) - abs(vr)*abs(Ir)*pf(vr,Ir),( abs(vr)*abs(Ir)*pf(vr,Ir))*100/(abs(vs)*abs(Is)*pf(vs,Is) )
+    fig = Figure()
+    ax = fig.subplots()
+    ax.plot(x1, y1, x2, y2)
+    buf = BytesIO()
+    fig.savefig(buf, format="png")
+    data = base64.b64encode(buf.getbuffer()).decode("ascii")
 
-def shuntcomp(Vs,Is):
-    return abs(Vs)*abs(Is)*math.sin(phase(Vs/Is))/1000000
+    if type=="short":
+        P=Pr/3000000
+        Ql=((1-(pf**2))**(0.5))*P/pf
+        Qr=(((r**2)-((P-a1)**2))**(0.5))+b1
+        Qc = Qr - Ql
+        compensation = 3*(Qr-Ql)
 
-def form_to_float(form):
-    data = {}
-    for key in form.keys():
-        data[key] = float(form[key])
-    return data
+        result["Compensation Required"] = compensation
+
+        
+    return result, data
