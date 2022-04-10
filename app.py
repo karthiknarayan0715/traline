@@ -50,12 +50,10 @@ def shortline_symmetrical():
         r = float(form.get('R'))
         f = float(form.get('f'))
         V = float(form.get('Vr'))
-        Pr = float(form.get('Vr'))
+        Pr = float(form.get('Pr'))
         pf = float(form.get('pf'))
 
         result, data = Compute(a, b, c, subcon, subspa, nos, dia, line, type, r, f, V, Pr, pf)
-
-        session['result'] = result
         return render_template('result.html', data=data)
     return render_template('shortline_symmetrical.html') 
 
@@ -86,11 +84,10 @@ def shortline_unsymmetrical():
         r = float(form.get('R'))
         f = float(form.get('f'))
         V = float(form.get('Vr'))
-        Pr = float(form.get('Vr'))
+        Pr = float(form.get('Pr'))
         pf = float(form.get('pf'))
 
         result, data = Compute(a, b, c, subcon, subspa, nos, dia, line, type, r, f, V, Pr, pf)
-        session['result'] = result
         return render_template('result.html', result=result, data=data)
         
     return render_template('shortline_unsymmetrical.html')
@@ -119,11 +116,10 @@ def mediumline_symmetrical():
         r = float(form.get('R'))
         f = float(form.get('f'))
         V = float(form.get('Vr'))
-        Pr = float(form.get('Vr'))
+        Pr = float(form.get('Pr'))
         pf = float(form.get('pf'))
 
         result, data = Compute(a, b, c, subcon, subspa, nos, dia, line, type, r, f, V, Pr, pf)
-        session['result'] = result
         return render_template('result.html', result=result, data=data)
     return render_template('medium_line_symmetrical.html') 
 
@@ -154,12 +150,10 @@ def mediumline_unsymmetrical():
         r = float(form.get('R'))
         f = float(form.get('f'))
         V = float(form.get('Vr'))
-        Pr = float(form.get('Vr'))
+        Pr = float(form.get('Pr'))
         pf = float(form.get('pf'))
 
         result, data = Compute(a, b, c, subcon, subspa, nos, dia, line, type, r, f, V, Pr, pf)
-
-        session['result'] = result
         return render_template('result.html', result=result, data=data)        
         
     return render_template('medium_line_unsymmetrical.html')
@@ -191,12 +185,10 @@ def longline_unsymmetrical():
         r = float(form.get('R'))
         f = float(form.get('f'))
         V = float(form.get('Vr'))
-        Pr = float(form.get('Vr'))
+        Pr = float(form.get('Pr'))
         pf = float(form.get('pf'))
 
         result, data = Compute(a, b, c, subcon, subspa, nos, dia, line, type, r, f, V, Pr, pf)
-
-        session['result'] = result
         return render_template('result.html', result=result, data=data)        
         
     return render_template('long_line_unsymmetrical.html')
@@ -225,12 +217,10 @@ def longline_symmetrical():
         r = float(form.get('R'))
         f = float(form.get('f'))
         V = float(form.get('Vr'))
-        Pr = float(form.get('Vr'))
+        Pr = float(form.get('Pr'))
         pf = float(form.get('pf'))
 
         result, data = Compute(a, b, c, subcon, subspa, nos, dia, line, type, r, f, V, Pr, pf)
-
-        session['result'] = result
         return render_template('result.html', result=result, data=data)
     return render_template('long_line_symmetrical.html') 
 

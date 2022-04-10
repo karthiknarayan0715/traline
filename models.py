@@ -11,6 +11,7 @@ from matplotlib.figure import Figure
 import os
 from io import BytesIO
 import base64
+from flask import session
 
 
 def check_form(form):
@@ -38,6 +39,7 @@ def Compute(a, b, c, subcon, d, nos, dia, line, type, r, f, V, Pr, pf):
     result = {}
     l=(3+((12*nos)-3)**(1/2))/6
     rad=dia*(2*l-1)/2
+    Pr = Pr*10**6
     h=0.7788*rad
 
     if subcon==1:
@@ -61,11 +63,11 @@ def Compute(a, b, c, subcon, d, nos, dia, line, type, r, f, V, Pr, pf):
     GMD=(a*b*c)**(1/3)
 
     L=2*0.0001*math.log(GMD*1000/SGMl)
-    C=(2*(10**-9)*8.854*3.14)/(math.log(GMD*1000/SGMc))
+    Cap=(2*(10**-9)*8.854*3.14)/(math.log(GMD*1000/SGMc))
     R=r*line	
     X=line*L*2*3.14*f
     Z=R+(X)*1j
-    Y=(2*3.14*C*line)*1j
+    Y=(2*3.14*Cap*line)*1j
     if type=="short":
         A=1
         C=0
@@ -96,28 +98,27 @@ def Compute(a, b, c, subcon, d, nos, dia, line, type, r, f, V, Pr, pf):
     eff=(abs(Vr)*abs(Ir)*math.cos(cmath.phase(Vr/Ir)))/(abs(Vs)*abs(Is)*math.cos(cmath.phase(Vs/Is)))
     
     result = {
-        "Inductance per Km": str(L),
-        "Capacitance per Km": str(C),
-        "Inductive Reactance": str(X),
-        "Capacitive Reactance": str(abs(1j/Y)),
+        "Inductance per Km": f"{str(L)} H/km",
+        "Capacitance per Km": f"{str(Cap)} F/km",
+        "Inductive Reactance": f"{str(X)} ohms",
+        "Capacitive Reactance": f"{str(abs(1j/Y))} ohms",
         "A Parameter": str(A),
         "B Parameter": str(B),
         "C Parameter": str(C),
         "D Parameter": str(D),
-        "Charging Current": str(abs(Is-Ir)),
-        "Sending End Voltage": str(abs(Vs*(3**0.5))/1000),
-        "Sending End Current": str(abs(Is)),
-        "Voltage Regulation": str(Vore),
-        "Losses": str(loss),
-        "Effeciency": str(eff*100)
+        "Charging Current": f"{str(abs(Is-Ir))} ohms",
+        "Sending End Voltage": f"{str(abs(Vs*(3**0.5))/1000)} kV",
+        "Sending End Current": f"{str(abs(Is))} A",
+        "Voltage Regulation": f"{str(Vore*100)} %",
+        "Losses": f"{str(loss)} W",
+        "Effeciency": f"{str(eff*100)} %"
     }
+    session['result'] = result
     a1=(abs(A)*abs(Vr)*abs(Vr)/abs(B))*math.cos(cmath.phase(B/A))*-1/1000000
     b1=(abs(A)*abs(Vr)*abs(Vr)/abs(B))*math.sin(cmath.phase(B/A))*-1/1000000
     a2=(abs(A)*abs(Vs)*abs(Vs)/abs(B))*math.cos(cmath.phase(B/A))/1000000
     b2=(abs(A)*abs(Vs)*abs(Vs)/abs(B))*math.sin(cmath.phase(B/A))/1000000
     r=abs(Vs)*abs(Vr)/abs(B)/1000000
-
-    print(a1, b1, a2, b2, r)
 
     file = open('./static/images/graph.png', "w+")
     file.close()
