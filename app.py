@@ -2,7 +2,6 @@ from flask import Flask, render_template, redirect, request, flash, url_for, ses
 from flask_weasyprint import HTML, render_pdf
 from models import *
 import numpy as np
-import math
 import os
 
 cur_path = os.path.abspath(os.path.dirname(__file__))
